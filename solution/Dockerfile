@@ -1,12 +1,17 @@
 FROM python:3.12.1-alpine3.19
 
+RUN pip install --no-cache-dir poetry
+
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install
 
 COPY . .
 
 ENV SERVER_PORT=8080
 
-CMD ["sh", "-c", "exec python3 -m flask run --host=0.0.0.0 --port=$SERVER_PORT"]
+EXPOSE $SERVER_PORT
+
+CMD poetry run uvicorn --factory app:create_app --host 0.0.0.0 --port $SERVER_PORT
