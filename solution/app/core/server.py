@@ -1,7 +1,7 @@
 from typing import Tuple
 from fastapi import FastAPI, APIRouter
 from app.core.routers import routers
-from app.core.exceptions import HTTPExceptionPydantic, http_exception_pydantic_handler
+from app.core.exceptions import DetailedHTTPException, detailed_http_exception_handler
 
 class Server:
 
@@ -11,7 +11,7 @@ class Server:
     def __init__(self, app: FastAPI) -> None:
         self.app = app
         self.register_routers(routers)
-        self.register_exception_handler(HTTPExceptionPydantic, http_exception_pydantic_handler)
+        self.register_exception_handler(DetailedHTTPException, detailed_http_exception_handler)
 
 
     def get_app(self) -> FastAPI:

@@ -1,6 +1,6 @@
 from typing import List, Annotated
 from fastapi import Path, Query
-from app.core.exceptions import HTTPExceptionPydantic
+from app.core.exceptions import DetailedHTTPException
 
 from app.api.api_router import api_router
 from app.crud.country import get_countries_by_region, get_country_by_alpha
@@ -16,5 +16,5 @@ def get_countries_by_region_handler(region: Annotated[List[str], Query()] = None
 def get_country_by_alpha_handler(alpha2: Annotated[str, Path()]) -> CountryBase | ErrorSchema:
     country = get_country_by_alpha(alpha2)
     if not country:
-        raise HTTPExceptionPydantic(404, ErrorSchema(reason='Страна с указанным кодом не найдена.'))
+        raise DetailedHTTPException(404, 'Страна с указанным кодом не найдена')
     return country
