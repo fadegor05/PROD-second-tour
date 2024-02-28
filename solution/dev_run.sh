@@ -1,1 +1,1 @@
-uvicorn app:create_app --port 8080
+poetry run uvicorn app:create_app --port 8080
