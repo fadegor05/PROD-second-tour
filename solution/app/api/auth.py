@@ -1,19 +1,20 @@
+from fastapi import Response, status
+
 from app.api.api_router import api_router
-from app.schemas.user import UserBase
+from app.schemas.user import UserRegisterResponse, UserDB, UserBaseOut
 from app.core.exceptions import DetailedHTTPException
+from app.crud.user import create_user
+from app.crud.country import get_country_by_alpha2
 
-AUTH_TROUBLES = {
-    'login': 'Длина логина не более 30 символов, и содержит только a-z, A-Z, 0-9',
-    'email': 'Длина емейла не более 50 символов',
-    'password': 'Длина паsoроля не менее 6, но и не более 100 символов, содержит только a-z A-Z, присутствует минимум одна цифра',
-    'countryCode': 'Страна с указанным кодом не найдена',
-    'phone': 'Номер начинается с + и после содержит только цифры 0-9',
-    'image': 'Длина ссылки на аватар пользователя превышает допустимый лимит'
-}
 
-@api_router.post('/auth/register')
-def register_user_handler(user: UserBase):
-    user_dict = user.model_dump()
-    for key in user_dict:
-        if user_dict[key] is None:
-            raise DetailedHTTPException(400, AUTH_TROUBLES[key])
+
+@api_router.post('/auth/register', response_model_exclude_none=True, response_model_exclude_unset=True)
+def register_user_handler(user_schema: UserDB, response: Response) -> UserRegisterResponse:
+    if get_country_by_alpha2(user_schema.countryCode) is None:
+        raise DetailedHTTPException(400, 'Страна с указанным кодом не найдена')
+    user = create_user(user_schema)
+    if user is None:
+        raise DetailedHTTPException(409, 'Пользователь с таким e-mail, номером телефона или логином уже зарегистрирован')
+    response.status_code = status.HTTP_201_CREATED
+    user_response = UserRegisterResponse(profile=UserBaseOut(**user.__dict__).model_dump(exclude_none=True))
+    return user_response

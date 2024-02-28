@@ -16,7 +16,7 @@ def get_countries_by_region(region: List[str] | None) -> List[CountryBase]:
         countries = result.scalars().all()
         return countries
 
-def get_country_by_alpha(alpha2: str) -> CountryBase | None:
+def get_country_by_alpha2(alpha2: str) -> CountryBase | None:
     stmt = select(Country).where(Country.alpha2 == alpha2)
     with Session() as session:
         result = session.execute(stmt)
