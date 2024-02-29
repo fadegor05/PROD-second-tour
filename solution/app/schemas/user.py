@@ -53,13 +53,30 @@ class UserDB(UserBase):
             return value
         raise DetailedHTTPException(400, 'Длина ссылки на аватар пользователя превышает допустимый лимит')
 
-class UserDBUpdate(UserDB):
-    login: str | None = None
-    email: str | None = None
+class UserDBUpdate(BaseModel):
     countryCode: str | None = None
     isPublic: bool | None = None
     phone: str | None = None
     image: str | None = None
+
+    @validator('countryCode')
+    def validate_country_code(cls, value) -> str:
+        if re.match(r'^[a-zA-Z]{2}$', value) and len(value) <= 2:
+            return value
+        raise DetailedHTTPException(400, 'Длина кода страны 2 символа, и содержит только a-z, A-Z')
+
+    @validator('phone')
+    def validate_phone(cls, value) -> str | None:
+        if value is None or (re.match(r'^\+[\d]+$', value) and len(value) <= 20):
+            return value
+        raise DetailedHTTPException(400, 'Номер начинается с + и после содержит только цифры 0-9')
+
+    @validator('image')
+    def validate_image(cls, value) -> str | None:
+        if value is None or len(value) <= 200:
+            return value
+        raise DetailedHTTPException(400, 'Длина ссылки на аватар пользователя превышает допустимый лимит')
+    
 
 class UserPasswordUpdate(BaseModel):
     oldPassword: str

@@ -26,7 +26,7 @@ def is_user_unique(login: str | None = None, email: str | None = None, phone: st
         filters.append(User.phone == phone)
     
     if not filters:
-        return False
+        return True
     
     stmt = select(User).where(or_(*filters))
 
@@ -56,7 +56,7 @@ def get_user_by_base(user_schema: UserBase) -> User | None:
         return user
 
 def update_user(old_user: User, user_schema: UserDBUpdate) -> User | None:
-    if not is_user_unique(user_schema.login, user_schema.email, user_schema.phone):
+    if not is_user_unique(phone=user_schema.phone):
         return None
     stmt = select(User).where(User.login == old_user.login)
     update_user_dict = user_schema.model_dump(exclude_none=True)
