@@ -55,12 +55,3 @@ class UserDB(UserBase):
 
 class UserModel(BaseModel):
     profile: UserDB
-
-class UserToken(BaseModel):
-    token: str
-
-    @validator('token')
-    def validate_token(cls, value):
-        if len(value) >= 20:
-            return value
-        raise ValueError()

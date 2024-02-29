@@ -13,12 +13,12 @@ def is_user_unique(login: str, email: str, phone: str | None = None) -> bool:
         result = session.execute(stmt)
         return len(result.scalars().all()) == 0
 
-def validate_user_by_base(login: str, password: str) -> bool:
-    stmt = select(User).where(and_(User.login == login, User.password == password))
+def get_user_by_base(user_schema: UserBase) -> User | None:
+    stmt = select(User).where(and_(User.login == user_schema.login, User.password == user_schema.password))
     with Session() as session:
         result = session.execute(stmt)
         user = result.scalar_one_or_none()
-        return user is not None
+        return user
 
 def create_user(user_schema: UserDB) -> User | None:
     if not is_user_unique(user_schema.login, user_schema.email, user_schema.phone):

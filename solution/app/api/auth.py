@@ -1,9 +1,11 @@
 from fastapi import Response, status
 
 from app.api.api_router import api_router
-from app.schemas.user import UserModel, UserDB, UserBase, UserToken
+from app.schemas.user import UserModel, UserDB, UserBase
+from app.schemas.token import TokenBase
 from app.core.exceptions import DetailedHTTPException
-from app.crud.user import create_user
+from app.crud.user import create_user, get_user_by_base
+from app.crud.token import create_token
 from app.crud.country import get_country_by_alpha2
 
 
@@ -20,5 +22,9 @@ def register_user_handler(user_schema: UserDB, response: Response) -> UserModel:
     return user_response
 
 @api_router.post('/auth/sign-in')
-def sign_in_user_handler(user_schema: UserBase, response: Response) -> UserToken:
-    return UserToken(token='exampletokenexampletokenexampletokenexampletokenexampletokenexampletoken')
+def sign_in_user_handler(user_schema: UserBase, response: Response) -> TokenBase:
+    user = get_user_by_base(user_schema)
+    if user is None:
+        raise DetailedHTTPException(401, 'Пользователь с указанным логином и паролем не найден')
+    token = create_token(user)
+    return TokenBase(token=token.token)
