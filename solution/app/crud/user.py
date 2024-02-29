@@ -2,9 +2,19 @@ from sqlalchemy import select, or_, and_
 
 from app.core.utils import hash_sha256
 from app.db.session import Session
-from app.schemas.user import UserDB, UserBase, UserDBUpdate
+from app.schemas.user import UserDB, UserBase, UserDBUpdate, UserPasswordUpdate
 from app.models.user import User
+from app.models.token import Token
 
+
+def delete_all_user_tokens(user: User) -> None:
+    stmt = select(Token).where(Token.user_id == user.id)
+    with Session() as session:
+        result = session.execute(stmt)
+        tokens = result.scalars().all()
+        for token in tokens:
+            session.delete(token)
+        session.commit()
 
 def is_user_unique(login: str | None = None, email: str | None = None, phone: str | None = None) -> bool:
     filters = []
@@ -23,6 +33,20 @@ def is_user_unique(login: str | None = None, email: str | None = None, phone: st
     with Session() as session:
         result = session.execute(stmt)
         return len(result.scalars().all()) == 0
+
+
+def update_user_password(user_obj: User, user_schema: UserPasswordUpdate) -> bool:
+    if user_obj.hashed_password != hash_sha256(user_schema.oldPassword):
+        return False
+    
+    stmt = select(User).where(User.login == user_obj.login)
+    with Session() as session:
+        result = session.execute(stmt)
+        user = result.scalar_one_or_none()
+        user.hashed_password = hash_sha256(user_schema.newPassword)
+        session.commit()
+        return True
+
 
 def get_user_by_base(user_schema: UserBase) -> User | None:
     stmt = select(User).where(and_(User.login == user_schema.login, User.hashed_password == hash_sha256(user_schema.password)))

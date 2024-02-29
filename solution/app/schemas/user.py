@@ -61,5 +61,15 @@ class UserDBUpdate(UserDB):
     phone: str | None = None
     image: str | None = None
 
+class UserPasswordUpdate(BaseModel):
+    oldPassword: str
+    newPassword: str
+
+    @validator('oldPassword', 'newPassword')
+    def validate_password(cls, value) -> str:
+        if re.findall(r'[a-z]', value) and re.findall(r'[A-Z]', value) and re.findall(r'[0-9]', value) and len(value) >= 6 and len(value) <= 100:
+            return value
+        raise DetailedHTTPException(400, 'Длина пароля не менее 6, но и не более 100 символов, содержит только a-z A-Z, присутствует минимум одна цифра')
+
 class UserModel(BaseModel):
     profile: UserDB
