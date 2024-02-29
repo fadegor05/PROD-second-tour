@@ -4,8 +4,26 @@ from app.core.utils import hash_sha256
 from app.db.session import Session
 from app.schemas.user import UserDB, UserBase, UserDBUpdate, UserPasswordUpdate
 from app.models.user import User
+from app.models.friend import Friend
 from app.models.token import Token
 
+def is_user_followed_on_user_by_login(follower_login: str, followes_login: str) -> bool:
+    follower_stmt = select(User).where(User.login == follower_login)
+    followes_stmt = select(User).where(User.login == followes_login)
+    with Session() as session:
+        follower_user = session.execute(follower_stmt).scalar_one_or_none()
+        followes_user = session.execute(followes_stmt).scalar_one_or_none()
+        stmt = select(Friend).where(and_(Friend.follower_id == follower_user.id, Friend.followes_id == followes_user.id))
+        result = session.execute(stmt)
+        friend = result.scalar_one_or_none()
+        return friend is not None
+
+def get_user_by_login(login: str) -> User | None:
+    stmt = select(User).where(User.login == login)
+    with Session() as session:
+        result = session.execute(stmt)
+        user = result.scalar_one_or_none()
+        return user
 
 def delete_all_user_tokens(user: User) -> None:
     stmt = select(Token).where(Token.user_id == user.id)
@@ -34,7 +52,6 @@ def is_user_unique(login: str | None = None, email: str | None = None, phone: st
         result = session.execute(stmt)
         return len(result.scalars().all()) == 0
 
-
 def update_user_password(user_obj: User, user_schema: UserPasswordUpdate) -> bool:
     if user_obj.hashed_password != hash_sha256(user_schema.oldPassword):
         return False
@@ -46,7 +63,6 @@ def update_user_password(user_obj: User, user_schema: UserPasswordUpdate) -> boo
         user.hashed_password = hash_sha256(user_schema.newPassword)
         session.commit()
         return True
-
 
 def get_user_by_base(user_schema: UserBase) -> User | None:
     stmt = select(User).where(and_(User.login == user_schema.login, User.hashed_password == hash_sha256(user_schema.password)))
