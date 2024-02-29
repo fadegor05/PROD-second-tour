@@ -7,17 +7,6 @@ from app.models.user import User
 from app.models.friend import Friend
 from app.models.token import Token
 
-def is_user_followed_on_user_by_login(follower_login: str, followes_login: str) -> bool:
-    follower_stmt = select(User).where(User.login == follower_login)
-    followes_stmt = select(User).where(User.login == followes_login)
-    with Session() as session:
-        follower_user = session.execute(follower_stmt).scalar_one_or_none()
-        followes_user = session.execute(followes_stmt).scalar_one_or_none()
-        stmt = select(Friend).where(and_(Friend.follower_id == follower_user.id, Friend.followes_id == followes_user.id))
-        result = session.execute(stmt)
-        friend = result.scalar_one_or_none()
-        return friend is not None
-
 def get_user_by_login(login: str) -> User | None:
     stmt = select(User).where(User.login == login)
     with Session() as session:

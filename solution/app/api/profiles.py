@@ -3,7 +3,8 @@ from fastapi import Path, Header
 
 from app.api.api_router import api_router
 from app.core.utils import authorization_check
-from app.crud.user import get_user_by_login, is_user_followed_on_user_by_login
+from app.crud.user import get_user_by_login
+from app.crud.friends import is_user_followed_on_user_by_login
 from app.core.exceptions import DetailedHTTPException
 from app.schemas.user import UserDB
 

@@ -88,5 +88,14 @@ class UserPasswordUpdate(BaseModel):
             return value
         raise DetailedHTTPException(400, 'Длина пароля не менее 6, но и не более 100 символов, содержит только a-z A-Z, присутствует минимум одна цифра')
 
+class UserLogin(BaseModel):
+    login: str
+
+    @validator('login')
+    def validate_login(cls, value) -> str:
+        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30:
+            return value
+        raise DetailedHTTPException(400, 'Длина логина не более 30 символов, и содержит только a-z, A-Z, 0-9')
+
 class UserModel(BaseModel):
     profile: UserDB
