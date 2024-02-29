@@ -1,11 +1,12 @@
+from pydantic import BaseModel, Field, validator
 from app.core.exceptions import DetailedHTTPException
 import re
-from pydantic import BaseModel, Field, validator
+
 
 
 class UserBase(BaseModel):
     login: str
-    password: str = Field(exclude=True)
+    password: str | None = Field(exclude=True)
 
     @validator('login')
     def validate_login(cls, value) -> str:
@@ -26,14 +27,13 @@ class UserDB(UserBase):
     isPublic: bool
     phone: str | None = None
     image: str | None = None
+    password: str | None = Field(None, exclude=True)
         
     @validator('email')
     def validate_email(cls, value) -> str:
         if len(value) <= 50:
             return value
         raise DetailedHTTPException(400, 'Длина e-mail не более 50 символов')
-
-    
         
     @validator('countryCode')
     def validate_country_code(cls, value) -> str:

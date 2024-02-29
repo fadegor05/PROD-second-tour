@@ -1,5 +1,6 @@
 from sqlalchemy import select, or_, and_
 
+from app.core.utils import hash_sha256
 from app.db.session import Session
 from app.schemas.user import UserDB, UserBase
 from app.models.user import User
@@ -14,7 +15,7 @@ def is_user_unique(login: str, email: str, phone: str | None = None) -> bool:
         return len(result.scalars().all()) == 0
 
 def get_user_by_base(user_schema: UserBase) -> User | None:
-    stmt = select(User).where(and_(User.login == user_schema.login, User.password == user_schema.password))
+    stmt = select(User).where(and_(User.login == user_schema.login, User.hashed_password == hash_sha256(user_schema.password)))
     with Session() as session:
         result = session.execute(stmt)
         user = result.scalar_one_or_none()
@@ -23,7 +24,7 @@ def get_user_by_base(user_schema: UserBase) -> User | None:
 def create_user(user_schema: UserDB) -> User | None:
     if not is_user_unique(user_schema.login, user_schema.email, user_schema.phone):
         return None
-    user = User(**user_schema.model_dump(), password=user_schema.password)
+    user = User(**user_schema.model_dump(), hashed_password=hash_sha256(user_schema.password))
     with Session() as session:
         session.add(user)
         session.commit()
