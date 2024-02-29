@@ -21,8 +21,8 @@ def is_token_exist(token: Token) -> bool:
         return False
     return True
 
-def get_user_by_token(token_str: str) -> Token | None:
-    stmt = select(Token).where(Token.token == token_str)
+def get_user_by_token(token_str: str) -> User | None:
+    stmt = select(Token).where(Token.token == token_str.replace('Bearer ', ''))
     with Session() as session:
         result = session.execute(stmt)
         token = result.scalar_one_or_none()

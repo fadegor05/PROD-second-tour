@@ -53,5 +53,13 @@ class UserDB(UserBase):
             return value
         raise DetailedHTTPException(400, 'Длина ссылки на аватар пользователя превышает допустимый лимит')
 
+class UserDBUpdate(UserDB):
+    login: str | None = None
+    email: str | None = None
+    countryCode: str | None = None
+    isPublic: bool | None = None
+    phone: str | None = None
+    image: str | None = None
+
 class UserModel(BaseModel):
     profile: UserDB
