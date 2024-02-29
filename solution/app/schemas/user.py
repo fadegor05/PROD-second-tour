@@ -43,7 +43,7 @@ class UserDB(UserBase):
 
     @validator('phone')
     def validate_phone(cls, value) -> str | None:
-        if value is None or re.match(r'^\+[\d]+$', value):
+        if value is None or (re.match(r'^\+[\d]+$', value) and len(value) <= 20):
             return value
         raise DetailedHTTPException(400, 'Номер начинается с + и после содержит только цифры 0-9')
 
