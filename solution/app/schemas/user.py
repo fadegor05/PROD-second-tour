@@ -5,15 +5,12 @@ from pydantic import BaseModel, Field, validator
 class UserBase(BaseModel):
     login: str
     email: str
-    password: str = Field(..., exclude=True)
+    password: str = Field(exclude=True)
     countryCode: str
     isPublic: bool
     phone: str | None = None
     image: str | None = None
-
-class UserDB(UserBase):
-    password: str
-
+    
     @validator('login')
     def validate_login(cls, value) -> str:
         if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30:
@@ -50,13 +47,5 @@ class UserDB(UserBase):
             return value
         raise DetailedHTTPException(400, 'Длина ссылки на аватар пользователя превышает допустимый лимит')
         
-class UserBaseOut(BaseModel):
-    login: str
-    email: str
-    countryCode: str
-    isPublic: bool
-    phone: str | None = None
-    image: str | None = None
-
 class UserRegisterResponse(BaseModel):
-    profile: UserBaseOut
+    profile: UserBase
