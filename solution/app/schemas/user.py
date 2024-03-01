@@ -10,7 +10,7 @@ class UserBase(BaseModel):
 
     @validator('login')
     def validate_login(cls, value) -> str:
-        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30:
+        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30 and len(value) >= 1:
             return value
         raise DetailedHTTPException(400, 'Длина логина не более 30 символов, и содержит только a-z, A-Z, 0-9')
 
@@ -31,25 +31,25 @@ class UserDB(UserBase):
         
     @validator('email')
     def validate_email(cls, value) -> str:
-        if len(value) <= 50:
+        if len(value) <= 50 and len(value) >= 1:
             return value
         raise DetailedHTTPException(400, 'Длина e-mail не более 50 символов')
         
     @validator('countryCode')
     def validate_country_code(cls, value) -> str:
-        if re.match(r'^[a-zA-Z]{2}$', value) and len(value) <= 2:
+        if re.match(r'^[a-zA-Z]{2}$', value) and len(value) == 2:
             return value
         raise DetailedHTTPException(400, 'Длина кода страны 2 символа, и содержит только a-z, A-Z')
 
     @validator('phone')
     def validate_phone(cls, value) -> str | None:
-        if value is None or (re.match(r'^\+[\d]+$', value) and len(value) <= 20):
+        if value is None or (re.match(r'^\+[\d]+$', value) and len(value) <= 20 and len(value) >= 1):
             return value
         raise DetailedHTTPException(400, 'Номер начинается с + и после содержит только цифры 0-9')
 
     @validator('image')
     def validate_image(cls, value) -> str | None:
-        if value is None or len(value) <= 200:
+        if value is None or (len(value) <= 200 and len(value) >= 1):
             return value
         raise DetailedHTTPException(400, 'Длина ссылки на аватар пользователя превышает допустимый лимит')
 
@@ -61,19 +61,19 @@ class UserDBUpdate(BaseModel):
 
     @validator('countryCode')
     def validate_country_code(cls, value) -> str:
-        if re.match(r'^[a-zA-Z]{2}$', value) and len(value) <= 2:
+        if re.match(r'^[a-zA-Z]{2}$', value) and len(value) == 2:
             return value
         raise DetailedHTTPException(400, 'Длина кода страны 2 символа, и содержит только a-z, A-Z')
 
     @validator('phone')
     def validate_phone(cls, value) -> str | None:
-        if value is None or (re.match(r'^\+[\d]+$', value) and len(value) <= 20):
+        if value is None or (re.match(r'^\+[\d]+$', value) and len(value) <= 20 and len(value) >= 1):
             return value
         raise DetailedHTTPException(400, 'Номер начинается с + и после содержит только цифры 0-9')
 
     @validator('image')
     def validate_image(cls, value) -> str | None:
-        if value is None or len(value) <= 200:
+        if value is None or (len(value) <= 200 and len(value) >= 1):
             return value
         raise DetailedHTTPException(400, 'Длина ссылки на аватар пользователя превышает допустимый лимит')
     
@@ -93,7 +93,7 @@ class UserLogin(BaseModel):
 
     @validator('login')
     def validate_login(cls, value) -> str:
-        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30:
+        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30 and len(value) >= 1:
             return value
         raise DetailedHTTPException(400, 'Длина логина не более 30 символов, и содержит только a-z, A-Z, 0-9')
 
