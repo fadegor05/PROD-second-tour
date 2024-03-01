@@ -19,5 +19,5 @@ class Token(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.datetime.utcnow(),
+        default=func.now(),
     )

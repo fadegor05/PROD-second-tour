@@ -93,7 +93,7 @@ class UserLogin(BaseModel):
 
     @validator('login')
     def validate_login(cls, value) -> str:
-        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30 and len(value) >= 1:
+        if re.match(r'^[a-zA-Z0-9-]+$', value) and len(value) <= 30:
             return value
         raise DetailedHTTPException(400, 'Длина логина не более 30 символов, и содержит только a-z, A-Z, 0-9')
 

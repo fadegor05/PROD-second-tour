@@ -3,4 +3,4 @@ from .countries import get_countries_by_region_handler, get_country_by_alpha2_ha
 from .auth import register_user_handler
 from .me import get_profile_handler, patch_profile_handler
 from .profiles import get_profile_by_login_handler
-from .friends import post_friend_add_handler, post_friend_remove_handler
+from .friends import post_friend_add_handler, post_friend_remove_handler, get_friends_handler

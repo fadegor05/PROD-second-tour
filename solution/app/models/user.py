@@ -20,5 +20,5 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(default=None)
     image: Mapped[str | None] = mapped_column(default=None)
     tokens: Mapped[List['Token']] = relationship(back_populates='user')
-    follows: Mapped[List['Friend']] = relationship('Friend', back_populates='follower', foreign_keys='Friend.followes_id')
-    followers: Mapped[List['Friend']] = relationship('Friend', back_populates='followes', foreign_keys='Friend.follower_id')
+    follows: Mapped[List['Friend']] = relationship('Friend', back_populates='follower', foreign_keys='Friend.follower_id')
+    followers: Mapped[List['Friend']] = relationship('Friend', back_populates='followes', foreign_keys='Friend.followes_id')

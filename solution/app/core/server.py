@@ -15,7 +15,7 @@ class Server:
         self.app = app
         self.register_routers(routers)
         self.register_exception_handler(DetailedHTTPException, detailed_http_exception_handler)
-        self.register_exception_handler(RequestValidationError, validation_exception_handler)
+        #self.register_exception_handler(RequestValidationError, validation_exception_handler)
 
 
     def get_app(self) -> FastAPI:
