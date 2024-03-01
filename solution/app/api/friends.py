@@ -30,5 +30,5 @@ def post_friend_remove_handler(user_schema: UserLogin, authorization: Annotated[
 @api_router.get('/friends')
 def get_friends_handler(limit: Annotated[int, Query()] = 5, offset: Annotated[int, Query()] = 0, authorization: Annotated[str, Header()] = None):
     user = authorization_check(authorization)
-    follows = get_follows_by_login(user.login)
+    follows = get_follows_by_login(user.login, limit, offset)
     return follows

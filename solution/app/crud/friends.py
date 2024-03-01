@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, desc
 
 from app.db.session import Session
 from app.models.user import User
@@ -43,12 +43,14 @@ def unfollow_by_login(user_login: str, target_login: str) -> None:
         session.commit()
         return None
 
-#TODO
-def get_follows_by_login(user_login: str) -> List[FriendBase]:
+def get_follows_by_login(user_login: str, limit: int, offset: int) -> List[FriendBase]:
     user_stmt = select(User).where(User.login == user_login)
     with Session() as session:
         user = session.execute(user_stmt).scalar_one_or_none()
+        follows_stmt = select(Friend).where(Friend.follower_id == user.id).order_by(desc(Friend.addedAt))
+        friends = session.execute(follows_stmt).scalars().all()
         follows_list = []
-        for friend in user.follows:
-            follows_list.append(FriendBase(login=friend.followes.login, addedAt=friend.addedAt.isoformat()))
+        for n, friend in enumerate(friends):
+            if n >= offset and len(follows_list) < limit:
+                follows_list.append(FriendBase(login=friend.followes.login, addedAt=friend.addedAt.isoformat()))
         return follows_list
