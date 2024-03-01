@@ -14,7 +14,7 @@ class PostBase(BaseModel):
     @validator('tags')
     def validate_tags(cls, value):
         for tag in value:
-            if not tag <= 20:
+            if not len(tag) <= 20:
                 raise DetailedHTTPException(400, 'Максимальная длина тега 20 символов')
         return value
     

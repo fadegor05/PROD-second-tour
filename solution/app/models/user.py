@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from .token import Token
     from .friend import Friend
     from .review import Review
+    from .post import Post
 
 class User(Base):
     __tablename__ = 'users'
@@ -23,4 +24,5 @@ class User(Base):
     tokens: Mapped[List['Token']] = relationship(back_populates='user')
     follows: Mapped[List['Friend']] = relationship('Friend', back_populates='follower', foreign_keys='Friend.follower_id')
     followers: Mapped[List['Friend']] = relationship('Friend', back_populates='followes', foreign_keys='Friend.followes_id')
+    posts: Mapped[List['Post']] = relationship(back_populates='author')
     reviews: Mapped[List['Review']] = relationship(back_populates='user')
