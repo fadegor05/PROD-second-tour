@@ -1,16 +1,27 @@
 from typing import List
-from sqlalchemy import select
+from sqlalchemy import select, distinct
 
 from app.schemas.country import CountryBase
 from app.models.country import Country
 
 from app.db.session import Session
 
-def get_countries_by_region(region: List[str] | None) -> List[CountryBase]:
-    if region:
-        stmt = select(Country).where(Country.region.in_(region)).order_by(Country.alpha2)
-    else:
-        stmt = select(Country)
+def get_regions() -> List[str]:
+    stmt = select(distinct(Country.region))
+    with Session() as session:
+        result = session.execute(stmt)
+        regions = result.scalars().all()
+        return regions
+
+def get_countries_by_region(regions: List[str] | None) -> List[CountryBase]:
+    stmt = select(Country)
+    if regions:
+        existing_regions = get_regions()
+        for region in regions:
+            if region not in existing_regions:
+                return None
+        stmt = stmt.where(Country.region.in_(regions))     
+    stmt = stmt.order_by(Country.alpha2)
     with Session() as session:
         result = session.execute(stmt)
         countries = result.scalars().all()

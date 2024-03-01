@@ -10,6 +10,8 @@ from app.schemas.error import ErrorSchema
 @api_router.get('/countries', response_model_exclude_none=True, response_model_exclude_unset=True)
 def get_countries_by_region_handler(region: Annotated[List[str], Query()] = None) -> List[CountryBase]:
     countries = get_countries_by_region(region)
+    if countries is None:
+        raise DetailedHTTPException(400, 'Переданы неверные значения')
     return countries
 
 @api_router.get('/countries/{alpha2}', response_model_exclude_none=True, response_model_exclude_unset=True)
