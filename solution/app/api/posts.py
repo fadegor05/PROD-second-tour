@@ -1,11 +1,11 @@
 from typing import Annotated
-from fastapi import Header
+from fastapi import Header, Path, Query
 
 from app.api.api_router import api_router
 from app.core.utils import get_user_by_token
 from app.core.exceptions import DetailedHTTPException
 from app.schemas.post import PostBase
-from app.crud.post import create_post, get_post_response_by_id, get_post_by_uuid
+from app.crud.post import create_post, get_post_response_by_id, get_post_by_uuid, get_feed_by_user_login
 from app.crud.friends import is_followed_on_by_login
 from app.crud.user import get_user_by_login
 from app.schemas.post import PostOut
@@ -18,7 +18,7 @@ def post_new_post_handler(post_schema: PostBase, authorization: Annotated[str, H
     return post_response
 
 @api_router.get('/posts/{postUuid}')
-def get_post_by_uuid_handler(postUuid: str, authorization: Annotated[str, Header()]):
+def get_post_by_uuid_handler(postUuid: Annotated[str, Path()], authorization: Annotated[str, Header()]):
     user = get_user_by_token(authorization)
     post = get_post_by_uuid(postUuid)
     if post is None:
@@ -28,3 +28,14 @@ def get_post_by_uuid_handler(postUuid: str, authorization: Annotated[str, Header
     if not (is_followed_on_by_login(post_author.login, user.login) or post_author.isPublic) and user.login != post_author.login:
         raise DetailedHTTPException(404, 'Нет доступа к запрашиваемому посту')
     return post_response
+
+@api_router.get('/posts/feed/{login}')
+def get_feed_by_login_handler(login: Annotated[str, Path()], limit: Annotated[int, Query()] = 5, offset: Annotated[int, Query()] = 0, authorization: Annotated[str, Header()] = None):
+    user = get_user_by_token(authorization)
+    if login == 'my':
+        login = user.login
+    feed_user = get_user_by_login(login)
+    if not (is_followed_on_by_login(login, user.login) or feed_user.isPublic) and user.login != login:
+        raise DetailedHTTPException(404, 'Нет доступа к запрашиваемой ленте')
+    feed = get_feed_by_user_login(login, offset, limit)
+    return feed
