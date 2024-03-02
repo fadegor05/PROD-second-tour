@@ -7,6 +7,12 @@ from app.models.user import User
 from app.db.session import Session
 
 
+def get_post_by_uuid(post_uuid: str) -> Post:
+    stmt = select(Post).where(Post.uuid == post_uuid)
+    with Session() as session:
+        post = session.execute(stmt).scalar_one_or_none()
+        return post
+
 def get_post_response_by_id(post_id: int) -> PostOut:
     post_stmt = select(Post).where(Post.id == post_id)
     with Session() as session:
