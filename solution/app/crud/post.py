@@ -1,12 +1,51 @@
 from typing import List
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, and_
 
+from app.crud.friends import is_followed_on_by_login
 from app.schemas.post import PostBase, PostOut
 from app.models.post import Post
 from app.models.tag import Tag
 from app.models.user import User
+from app.models.review import Review
 from app.db.session import Session
 
+def like_post_by_login_and_id(user_login: str, post_id: int) -> None:
+    user_stmt = select(User).where(User.login == user_login)
+    post_stmt = select(Post).where(Post.id == post_id)
+    with Session() as session:
+        user = session.execute(user_stmt).scalar_one_or_none()
+        post = session.execute(post_stmt).scalar_one_or_none()
+        review_stmt = select(Review).where(and_(Review.post_id == post.id, Review.user_id == user.id))
+        review = session.execute(review_stmt).scalar_one_or_none()
+        if review is not None:
+            review.vote = True
+        else:
+            review = Review(post=post, user=user, vote=True)
+            session.add(review)
+        session.commit()
+    
+def dislike_post_by_login_and_id(user_login: str, post_id: int) -> None:
+    user_stmt = select(User).where(User.login == user_login)
+    post_stmt = select(Post).where(Post.id == post_id)
+    with Session() as session:
+        user = session.execute(user_stmt).scalar_one_or_none()
+        post = session.execute(post_stmt).scalar_one_or_none()
+        review_stmt = select(Review).where(and_(Review.post_id == post.id, Review.user_id == user.id))
+        review = session.execute(review_stmt).scalar_one_or_none()
+        if review is not None:
+            review.vote = False
+        else:
+            review = Review(post=post, user=user, vote=False)
+            session.add(review)
+        session.commit()
+
+def can_user_access_user_by_post(user_login: str, post_uuid: str) -> bool:
+    user_stmt = select(User).where(User.login == user_login)
+    post_stmt = select(Post).where(Post.uuid == post_uuid)
+    with Session() as session:
+        user = session.execute(user_stmt).scalar_one_or_none()
+        post = session.execute(post_stmt).scalar_one_or_none()
+        return is_followed_on_by_login(post.author.login, user.login) or post.author.isPublic or user.login == post.author.login
 
 def get_feed_by_user_login(user_login: str, offset: int, limit: int) -> List[Post]:
     user_stmt = select(User).where(User.login == user_login)

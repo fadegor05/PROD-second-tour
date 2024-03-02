@@ -6,6 +6,14 @@ from app.models.user import User
 from app.models.friend import Friend
 from app.schemas.friend import FriendBase
 
+def can_user_access_user_by_login(user_login: str, target_login: str):
+    user_stmt = select(User).where(User.login == user_login)
+    target_stmt = select(User).where(User.login == target_login)
+    with Session() as session:
+        user = session.execute(user_stmt).scalar_one_or_none()
+        target = session.execute(target_stmt).scalar_one_or_none()
+        return is_followed_on_by_login(target.login, user.login) or target.isPublic or user.login == target.login
+
 def is_followed_on_by_login(user_login: str, target_login: str) -> bool:
     user_stmt = select(User).where(User.login == user_login)
     target_stmt = select(User).where(User.login == target_login)
